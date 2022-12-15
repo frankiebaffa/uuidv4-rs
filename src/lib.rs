@@ -1,38 +1,51 @@
 use rand_core::{ RngCore, OsRng, };
+pub trait UUID {
+    fn from_uuid_bytes(bytes: [u8; 16]) -> Self;
+}
+impl UUID for String {
+    fn from_uuid_bytes(bytes: [u8; 16]) -> Self {
+        format!(
+            concat!(
+                "{:02x}{:02x}{:02x}{:02x}",
+                "-{:02x}{:02x}",
+                "-{:02x}{:02x}",
+                "-{:02x}{:02x}",
+                "-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+            ),
+            bytes[0], bytes[1], bytes[2], bytes[3],
+            bytes[4], bytes[5], bytes[6], bytes[7],
+            bytes[8], bytes[9], bytes[10], bytes[11],
+            bytes[12], bytes[13], bytes[14], bytes[15],
+        )
+    }
+}
+impl UUID for [u8; 16] {
+    fn from_uuid_bytes(bytes: [u8; 16]) -> Self {
+        bytes
+    }
+}
 fn rng() -> [u8; 16] {
     let mut rng = OsRng::default();
     let mut rnds = [0x00; 16];
     rng.fill_bytes(&mut rnds);
     rnds
 }
-fn stringify(arr: [u8; 16]) -> String {
-    format!(
-        concat!(
-            "{:02x}{:02x}{:02x}{:02x}",
-            "-{:02x}{:02x}",
-            "-{:02x}{:02x}",
-            "-{:02x}{:02x}",
-            "-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
-        ),
-        arr[0], arr[1], arr[2], arr[3],
-        arr[4], arr[5], arr[6], arr[7],
-        arr[8], arr[9], arr[10], arr[11],
-        arr[12], arr[13], arr[14], arr[15],
-    )
-}
-pub fn uuidv4() -> String {
+pub fn uuidv4<Type>() -> Type
+where
+    Type: UUID,
+{
     let mut random = rng();
     // v4.4 spec
     random[6] = (random[6] & 0x0f) | 0x40;
     random[8] = (random[8] & 0x3f) | 0x80;
-    stringify(random)
+    Type::from_uuid_bytes(random)
 }
 #[cfg(test)]
 mod test {
     use crate::{
         rng,
-        stringify,
         uuidv4,
+        UUID,
     };
     #[test]
     fn rng_test() {
@@ -43,7 +56,7 @@ mod test {
         }
     }
     #[test]
-    fn stringify_test_1() {
+    fn string_test_1() {
         let x = [
             0x00u8, 0x01u8, 0x02u8, 0x03u8,
             0x04u8, 0x05u8, 0x06u8, 0x07u8,
@@ -52,7 +65,7 @@ mod test {
         ];
         assert_eq!(
             "00010203-0405-0607-0809-0a0b0c0d0e0f",
-            stringify(x),
+            String::from_uuid_bytes(x),
         );
     }
     #[test]
@@ -65,14 +78,22 @@ mod test {
         ];
         assert_eq!(
             "10111213-1415-1617-1819-1a1b1c1d1e1f",
-            stringify(x),
+            String::from_uuid_bytes(x),
         );
     }
     #[test]
     fn uuidv4_test() {
         for _ in 0..1000 {
-            let first = uuidv4();
-            let second = uuidv4();
+            let first = uuidv4::<String>();
+            let second = uuidv4::<String>();
+            assert_ne!(first, second);
+        }
+    }
+    #[test]
+    fn uuidv4_bytes_test() {
+        for _ in 0..1000 {
+            let first = uuidv4::<[u8; 16]>();
+            let second = uuidv4::<[u8; 16]>();
             assert_ne!(first, second);
         }
     }

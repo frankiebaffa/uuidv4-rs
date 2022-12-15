@@ -2,10 +2,21 @@ use {
     std::{
         env::args,
         process::exit,
-        time::Instant,
+        time::{ Duration, Instant },
     },
-    uuidv4_rs::uuidv4,
+    uuidv4_rs::{ UUID, uuidv4, },
 };
+fn bench<Type>(max: usize, durs: &mut Vec<Duration>)
+where
+    Type: UUID,
+{
+    for _ in 0..max {
+        let this_start = Instant::now();
+        uuidv4::<String>();
+        let this_end = Instant::now();
+        durs.push(this_end - this_start);
+    }
+}
 fn main() {
     let max = {
         let max_str = match args().nth(1) {
@@ -20,16 +31,36 @@ fn main() {
             },
         }
     };
+    let typ = {
+        let typ_str = match args().nth(2) {
+            Some(arg) => arg,
+            None => "string".to_owned(),
+        };
+        match typ_str.as_str() {
+            "string" => "string",
+            "u8" => "u8",
+            _ => {
+                println!("Argument for type must be in [string, u8]");
+                exit(2);
+            },
+        }
+    };
     if max.eq(&0) {
         println!("Argument must be <0");
-        exit(2);
+        exit(3);
     }
     let mut each_time = Vec::new();
-    for _ in 0..max {
-        let this_start = Instant::now();
-        uuidv4();
-        let this_end = Instant::now();
-        each_time.push(this_end - this_start);
+    match typ {
+        "string" => {
+            bench::<String>(max, &mut each_time);
+        },
+        "u8" => {
+            bench::<[u8; 16]>(max, &mut each_time);
+        },
+        t => {
+            println!("{} is not a type implementing UUID", t);
+            exit(4);
+        },
     }
     let tot_ns = each_time.iter().map(|e| e.as_nanos())
         .sum::<u128>();
