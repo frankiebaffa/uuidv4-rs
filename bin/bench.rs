@@ -4,7 +4,7 @@ use {
         process::exit,
         time::Instant,
     },
-    uuidv4::uuidv4,
+    uuidv4_rs::uuidv4,
 };
 fn main() {
     let max = {

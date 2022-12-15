@@ -1,5 +1,5 @@
 [package]
-name = "uuidv4"
+name = "uuidv4-rs"
 version = "0.1.0"
 edition = "2021"
 [[bin]]
