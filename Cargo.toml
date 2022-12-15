@@ -1,0 +1,13 @@
+[package]
+name = "uuidv4"
+version = "0.1.0"
+edition = "2021"
+[[bin]]
+path = "bin/get_uuidv4.rs"
+name = "get_uuidv4"
+[[bin]]
+path = "bin/bench.rs"
+name = "bench"
+[dependencies.rand_core]
+version = "0.6.4"
+features = [ "getrandom" ]
