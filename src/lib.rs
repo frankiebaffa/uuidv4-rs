@@ -1,5 +1,7 @@
 use rand_core::{ RngCore, OsRng, };
+/// A UUID as another data type.
 pub trait UUID {
+    /// Converts the UUID bytes into another data type.
     fn from_uuid_bytes(bytes: [u8; 16]) -> Self;
 }
 impl UUID for String {
@@ -30,6 +32,7 @@ fn rng() -> [u8; 16] {
     rng.fill_bytes(&mut rnds);
     rnds
 }
+/// Generates a new UUID-V4.
 pub fn uuidv4<Type>() -> Type
 where
     Type: UUID,
