@@ -39,6 +39,7 @@ fn main() {
         match typ_str.as_str() {
             "string" => "string",
             "u8" => "u8",
+            "vec" => "vec",
             _ => {
                 println!("Argument for type must be in [string, u8]");
                 exit(2);
@@ -57,6 +58,9 @@ fn main() {
         "u8" => {
             bench::<[u8; 16]>(max, &mut each_time);
         },
+        "vec" => {
+            bench::<Vec<u8>>(max, &mut each_time);
+        },
         t => {
             println!("{} is not a type implementing UUID", t);
             exit(4);
@@ -72,7 +76,7 @@ fn main() {
     let avg_ns = tot_ns / max as u128;
     let avg_ms = avg_ns / 1000000;
     let avg_ms_str = match avg_ms {
-        0 => ">1".to_owned(),
+        0 => "<1".to_owned(),
         n => n.to_string(),
     };
     println!(

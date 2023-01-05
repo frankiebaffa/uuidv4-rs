@@ -26,6 +26,11 @@ impl UUID for [u8; 16] {
         bytes
     }
 }
+impl UUID for Vec<u8> {
+    fn from_uuid_bytes(bytes: [u8; 16]) -> Self {
+        bytes.into()
+    }
+}
 fn rng() -> [u8; 16] {
     let mut rng = OsRng::default();
     let mut rnds = [0x00; 16];
@@ -97,6 +102,14 @@ mod test {
         for _ in 0..1000 {
             let first = uuidv4::<[u8; 16]>();
             let second = uuidv4::<[u8; 16]>();
+            assert_ne!(first, second);
+        }
+    }
+    #[test]
+    fn uuidv4_vec_test() {
+        for _ in 0..1000 {
+            let first = uuidv4::<Vec<u8>>();
+            let second = uuidv4::<Vec<u8>>();
             assert_ne!(first, second);
         }
     }
