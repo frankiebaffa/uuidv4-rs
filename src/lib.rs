@@ -115,7 +115,7 @@ mod test {
     }
 }
 #[cfg(feature = "validate")]
-mod validate {
+pub mod validate {
     use {
         lazy_static::lazy_static,
         regex::Regex,
