@@ -2,6 +2,8 @@
 name = "uuidv4-rs"
 version = "1.0.0"
 edition = "2021"
+[features]
+validate = ["dep:regex", "dep:lazy_static"]
 [[bin]]
 path = "bin/get_uuidv4.rs"
 name = "get_uuidv4"
@@ -11,3 +13,9 @@ name = "bench"
 [dependencies.rand_core]
 version = "0.6.4"
 features = [ "getrandom" ]
+[dependencies.regex]
+version = "1.7.1"
+optional = true
+[dependencies.lazy_static]
+version = "1.4.0"
+optional = true

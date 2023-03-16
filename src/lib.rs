@@ -114,3 +114,47 @@ mod test {
         }
     }
 }
+#[cfg(feature = "validate")]
+mod validate {
+    use {
+        lazy_static::lazy_static,
+        regex::Regex,
+    };
+    pub fn is_valid(uuid: &str) -> bool {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(concat!(
+                "^(?i:",
+                    "[0-9a-f]{8}-",
+                    "[0-9a-f]{4}-",
+                    "[1-5][0-9a-f]{3}-",
+                    "[89ab][0-9a-f]{3}-",
+                    "[0-9a-f]{12}",
+                    "|",
+                    "00000000-0000-0000-0000-000000000000",
+                ")$"
+            )).unwrap();
+        }
+        RE.is_match(uuid)
+    }
+    #[cfg(test)]
+    mod test {
+        use crate::{
+            uuidv4,
+            validate::is_valid,
+        };
+        #[test]
+        fn uuidv4_string_is_valid() {
+            for _ in 0..100 {
+                let uuid = uuidv4::<String>();
+                let is_valid = is_valid(&uuid);
+                assert!(is_valid);
+            }
+        }
+        #[test]
+        fn uuidv4_string_not_valid() {
+            let not_uuid = "this is not a uuid".to_owned();
+            let is_valid = is_valid(&not_uuid);
+            assert!(!is_valid);
+        }
+    }
+}
